@@ -15,6 +15,66 @@ Build a distributed federated-learning orchestration platform that:
 
 ---
 
+# Architectural Principles
+
+## Separation of Concerns
+
+Business logic must never depend directly on storage.
+
+All persistence must go through repository contracts.
+
+Example:
+
+```text
+WorkerRegistry
+        │
+        ▼
+WorkerRepository
+        │
+        ▼
+PostgresWorkerRepository
+```
+
+The registry should not know whether data is stored in:
+
+```text
+PostgreSQL
+SQLite
+Redis
+Memory
+```
+
+## Dependency Injection
+
+Services receive dependencies rather than constructing them.
+
+Example:
+
+```python
+worker_registry = WorkerRegistry(worker_repository)
+```
+
+instead of:
+
+```python
+worker_registry = WorkerRegistry()
+```
+
+## Configurable Infrastructure
+
+Infrastructure implementations must be swappable through configuration.
+
+Example:
+
+```python
+DATABASE_BACKEND = "memory"
+DATABASE_BACKEND = "postgres"
+```
+
+without modifying business logic.
+
+---
+
 # Day 1 — Repository Foundation & Architecture
 
 ## Deliverables
@@ -32,6 +92,7 @@ fedforge/
 ├── deployments/
 ├── scripts/
 ├── datasets/
+├── postman/
 └── docker-compose.yml
 ```
 
@@ -61,10 +122,10 @@ Install:
 Coordinator launches successfully.
 
 ```bash
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
-Success Criteria:
+### Success Criteria
 
 ```text
 GET /
@@ -73,7 +134,7 @@ returns coordinator status
 
 ---
 
-# Day 2 — Worker Registration System
+# Day 2 — Worker Registration & Lifecycle Foundation
 
 ## Deliverables
 
@@ -83,6 +144,16 @@ Implement:
 POST /workers/register
 GET /workers
 GET /workers/{id}
+POST /workers/{id}/heartbeat
+```
+
+Implement:
+
+```text
+WorkerRegistry
+WorkerMonitor
+WorkerRepository Contract
+MemoryWorkerRepository
 ```
 
 Worker startup flow:
@@ -103,11 +174,32 @@ hostname
 ip
 status
 registered_at
+last_seen
 ```
 
-Success Criteria:
+Worker states:
 
-Worker appears in database after startup.
+```text
+REGISTERED
+ONLINE
+OFFLINE
+```
+
+### Success Criteria
+
+```text
+Worker can register
+
+Worker can heartbeat
+
+Worker transitions ONLINE
+
+Worker transitions OFFLINE
+
+Repository abstraction exists
+
+All business logic is repository-backed
+```
 
 ---
 
@@ -118,10 +210,17 @@ Worker appears in database after startup.
 Setup:
 
 ```text
-postgres container
+PostgreSQL Docker Container
 ```
 
-Tables:
+Introduce:
+
+```text
+SQLAlchemy ORM
+Alembic
+```
+
+Create tables:
 
 ```text
 workers
@@ -130,27 +229,46 @@ rounds
 metrics
 ```
 
-Introduce:
+Implement:
 
 ```text
-SQLAlchemy ORM
+PostgresWorkerRepository
 ```
 
-Add migration system:
+Support:
 
 ```text
-Alembic
+Configurable storage backend
 ```
 
-Success Criteria:
+Example:
 
-Worker survives coordinator restart.
+```python
+DATABASE_BACKEND = "memory"
+DATABASE_BACKEND = "postgres"
+```
+
+### Success Criteria
+
+```text
+Worker registration persists to PostgreSQL
+
+Worker survives coordinator restart
+
+No changes required in:
+
+WorkerRegistry
+WorkerMonitor
+API Layer
+```
 
 ---
 
 # Day 4 — Heartbeat & Uptime Tracking
 
 ## Deliverables
+
+Persist heartbeats.
 
 Worker heartbeat service:
 
@@ -181,13 +299,19 @@ TRAINING
 IDLE
 ```
 
-Success Criteria:
+### Success Criteria
 
-Stopping worker marks it offline automatically.
+```text
+Stopping worker marks it offline
+
+Worker state survives restart
+
+Heartbeat history persists
+```
 
 ---
 
-# Day 5 — Dockerization
+# Day 5 — Full Platform Containerization
 
 ## Deliverables
 
@@ -199,12 +323,13 @@ Worker
 Frontend
 ```
 
-Compose:
+Docker Compose:
 
 ```text
 postgres
 coordinator
 worker
+frontend
 ```
 
 Commands:
@@ -213,9 +338,13 @@ Commands:
 docker compose up
 ```
 
-Success Criteria:
+### Success Criteria
 
-Entire platform starts through Docker.
+```text
+Entire platform launches through Docker
+
+Fresh clone works with minimal setup
+```
 
 ---
 
@@ -256,9 +385,11 @@ Message schema:
 }
 ```
 
-Success Criteria:
+### Success Criteria
 
-Coordinator can push messages to workers.
+```text
+Coordinator can push messages to workers
+```
 
 ---
 
@@ -296,9 +427,11 @@ Status
 Last heartbeat
 ```
 
-Success Criteria:
+### Success Criteria
 
-Frontend displays live worker information.
+```text
+Frontend displays live worker information
+```
 
 ---
 
@@ -326,6 +459,15 @@ Support:
 IID partitioning
 ```
 
+Persist metadata:
+
+```text
+Dataset
+Partition Type
+Shard Assignment
+Version
+```
+
 Store:
 
 ```text
@@ -333,9 +475,11 @@ datasets/client_1/
 datasets/client_2/
 ```
 
-Success Criteria:
+### Success Criteria
 
-Each worker receives a unique dataset shard.
+```text
+Each worker receives a unique dataset shard
+```
 
 ---
 
@@ -364,9 +508,11 @@ Training API:
 train_local()
 ```
 
-Success Criteria:
+### Success Criteria
 
-Single worker trains locally.
+```text
+Single worker trains locally
+```
 
 ---
 
@@ -374,10 +520,11 @@ Single worker trains locally.
 
 ## Deliverables
 
-Coordinator creates:
+Create:
 
 ```text
 TrainingJob
+TrainingJobService
 ```
 
 Workflow:
@@ -400,11 +547,15 @@ Store:
 job_id
 worker_id
 status
+created_at
+completed_at
 ```
 
-Success Criteria:
+### Success Criteria
 
-Coordinator successfully launches training.
+```text
+Coordinator successfully launches training jobs
+```
 
 ---
 
@@ -424,6 +575,17 @@ Implement:
 FedAvg
 ```
 
+Create aggregation round state machine:
+
+```text
+CREATED
+DISPATCHED
+COLLECTING
+AGGREGATING
+COMPLETED
+FAILED
+```
+
 Workflow:
 
 ```text
@@ -438,9 +600,11 @@ Store:
 round metrics
 ```
 
-Success Criteria:
+### Success Criteria
 
-Global model updates after aggregation.
+```text
+Global model updates after aggregation
+```
 
 ---
 
@@ -472,9 +636,11 @@ Accuracy vs Round
 Loss vs Round
 ```
 
-Success Criteria:
+### Success Criteria
 
-Training progress visible in dashboard.
+```text
+Training progress visible in dashboard
+```
 
 ---
 
@@ -505,11 +671,17 @@ Test:
 Cross-machine communication
 Training execution
 Aggregation
+Worker failure recovery
+Network interruption recovery
 ```
 
-Success Criteria:
+### Success Criteria
 
-Workers train across separate machines.
+```text
+Workers train across separate machines
+
+Coordinator survives worker failures
+```
 
 ---
 
@@ -555,9 +727,15 @@ Tag:
 git tag v1.0
 ```
 
-Success Criteria:
+### Success Criteria
 
-Fresh clone → docker compose up → fully working platform.
+```text
+Fresh clone
+
+docker compose up
+
+fully working platform
+```
 
 ---
 
@@ -573,8 +751,6 @@ RAM
 Disk
 ```
 
----
-
 ## Priority 2
 
 Experiment comparison
@@ -584,8 +760,6 @@ Run A
 Run B
 ```
 
----
-
 ## Priority 3
 
 Live training logs
@@ -593,8 +767,6 @@ Live training logs
 ```text
 WebSocket streaming
 ```
-
----
 
 ## Priority 4
 
@@ -672,5 +844,6 @@ Open the dashboard and observe:
 * Training jobs executing
 * FedAvg aggregation occurring
 * Accuracy and loss graphs updating live
+* Coordinator restarts without losing state
 
 without modifying any source code.

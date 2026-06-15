@@ -15,3 +15,5 @@ dist/
 .idea/
 
 *.db
+help
+timeline.md
