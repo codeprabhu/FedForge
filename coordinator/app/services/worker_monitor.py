@@ -1,7 +1,7 @@
 import asyncio
 from datetime import datetime, timedelta
 from app.models.enums import WorkerStatus
-from app.core.config import *
+from app.core.config import (OFFLINE_THRESHOLD_SECONDS, HEARTBEAT_INTERVAL_SECONDS)
 class WorkerMonitor:
     def __init__(self, registry):
         self.registry = registry
@@ -20,5 +20,6 @@ class WorkerMonitor:
 
                 if now - worker["last_seen"] > timedelta(seconds = OFFLINE_THRESHOLD_SECONDS):
                     worker["status"] = WorkerStatus.OFFLINE
+                    self.registry.repository.update(worker)
 
             await asyncio.sleep(HEARTBEAT_INTERVAL_SECONDS)

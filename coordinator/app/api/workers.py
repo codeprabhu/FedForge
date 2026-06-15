@@ -1,9 +1,8 @@
 from fastapi import APIRouter  # type: ignore
 from app.models.worker import WorkerRegistrationRequest
-from app.core.coordinator import *
+from app.core.coordinator import worker_registry
 
 router  = APIRouter()
-worker_registry = worker_registry
 
 @router.post("/workers/register")
 def register_worker(payload : WorkerRegistrationRequest):
@@ -24,5 +23,5 @@ def heartbeat(worker_id:str):
             "error": "worker not found"
         }
     return {
-        "status":"heartbeat recieved"
+        "status":"heartbeat received"
     }
