@@ -4,12 +4,11 @@ from app.api.workers import router as worker_router
 from contextlib import asynccontextmanager
 import asyncio
 
-from app.core.coordinator import worker_registry
 from app.services.worker_monitor import WorkerMonitor
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
-    monitor = WorkerMonitor(worker_registry)
+    monitor = WorkerMonitor()
     monitor_task = asyncio.create_task(
         monitor.monitor_loop()
     )

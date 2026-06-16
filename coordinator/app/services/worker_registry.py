@@ -1,5 +1,5 @@
 from uuid import uuid4
-from datetime import datetime
+from datetime import datetime, UTC
 from app.models.enums import WorkerStatus
 class WorkerRegistry:
     def __init__(self, repository):
@@ -9,11 +9,11 @@ class WorkerRegistry:
         worker_id = str(uuid4())
 
         worker = {
+            **worker_data,
             "worker_id" : worker_id,
             "status" : WorkerStatus.REGISTERED,
-            "registered_at" : datetime.utcnow(),
+            "registered_at" : datetime.now(UTC),
             "last_seen" : None,
-            **worker_data
         }
         self.repository.save(worker)
         return worker
@@ -29,7 +29,7 @@ class WorkerRegistry:
 
         if(worker is None):
             return None
-        worker["last_seen"] = datetime.utcnow()
+        worker["last_seen"] = datetime.now(UTC)
         worker["status"] = WorkerStatus.ONLINE
 
         self.repository.update(worker)
