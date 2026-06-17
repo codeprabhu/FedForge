@@ -1,14 +1,14 @@
 import asyncio
 from datetime import datetime, timedelta, UTC
 
-from app.models.enums import WorkerStatus
-from app.core.config import (
+from coordinator.app.models.enums import WorkerStatus
+from coordinator.app.core.config import (
     OFFLINE_THRESHOLD_SECONDS,
     HEARTBEAT_INTERVAL_SECONDS
 )
 
-from app.db.unit_of_work import UnitOfWork
-from app.repositories.postgres_worker_repository import PostgresWorkerRepository
+from coordinator.app.db.unit_of_work import UnitOfWork
+from coordinator.app.repositories.postgres_worker_repository import PostgresWorkerRepository
 
 
 class WorkerMonitor:

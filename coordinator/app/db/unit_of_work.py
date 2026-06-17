@@ -13,7 +13,7 @@ Use UnitOfWork for:
 Never create UnitOfWork inside a FastAPI request.
 """
 
-from app.db.database import SessionLocal
+from coordinator.app.db.database import SessionLocal
 class UnitOfWork:
 
     def __init__(self):

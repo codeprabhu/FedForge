@@ -2,7 +2,7 @@ from sqlalchemy import Column # type: ignore
 from sqlalchemy import String # type: ignore
 from sqlalchemy import DateTime # type: ignore
 from sqlalchemy import Integer # type: ignore
-from app.db.base import Base
+from coordinator.app.db.base import Base
 
 class Worker(Base):
     __tablename__ = "workers"
@@ -36,9 +36,9 @@ class Worker(Base):
     )
 
     registered_at = Column(
-        DateTime, nullable = False
+        DateTime(timezone = True), nullable = False
     )
 
     last_seen = Column(
-        DateTime, nullable = True
+        DateTime(timezone = True), nullable = True
     )

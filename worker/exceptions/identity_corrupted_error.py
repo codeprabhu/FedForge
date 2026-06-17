@@ -1,0 +1,2 @@
+class IdentityCorruptedError(Exception):
+    pass

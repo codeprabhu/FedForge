@@ -1,4 +1,4 @@
-from app.repositories.base import WorkerRepository
+from coordinator.app.repositories.base import WorkerRepository
 
 class MemoryWorkerRepository(WorkerRepository):
     def __init__(self):

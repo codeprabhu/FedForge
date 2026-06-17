@@ -1,5 +1,5 @@
-from app.repositories.base import WorkerRepository
-from app.db.models.worker import Worker
+from coordinator.app.repositories.base import WorkerRepository
+from coordinator.app.db.models.worker import Worker
 
 class PostgresWorkerRepository(WorkerRepository):
 

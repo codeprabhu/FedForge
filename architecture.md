@@ -169,6 +169,148 @@ Workers may run on:
 Each worker is independent.
 
 ---
+## Worker Runtime Architecture
+
+The worker process follows a layered architecture similar to the coordinator.
+
+```text
+WorkerRuntime
+        ↓
+RegistrationService
+        ↓
+WorkerClient
+        ↓
+Coordinator API
+```
+
+Worker responsibilities are divided into dedicated services.
+
+### Identity Layer
+
+Components:
+
+```text
+WorkerIdentity
+IdentityStore
+IdentityManager
+```
+
+Purpose:
+
+Persist worker identity across restarts.
+
+Identity generation remains coordinator-owned.
+
+Workers receive identities during registration and persist them locally.
+
+---
+
+### Runtime Layer
+
+Component:
+
+```text
+WorkerRuntime
+```
+
+Purpose:
+
+Own worker lifecycle orchestration.
+
+Responsibilities:
+
+```text
+Startup
+Registration
+Heartbeat startup
+Future training execution
+Future metrics collection
+```
+
+---
+
+### Communication Layer
+
+Component:
+
+```text
+WorkerClient
+```
+
+Purpose:
+
+Own all coordinator communication.
+
+Current operations:
+
+```text
+Register Worker
+Send Heartbeat
+```
+
+Future operations:
+
+```text
+Receive Training Jobs
+Submit Model Updates
+Report Metrics
+```
+
+---
+
+### Heartbeat Layer
+
+Component:
+
+```text
+HeartbeatService
+```
+
+Purpose:
+
+Maintain worker liveness.
+
+Workers periodically notify the coordinator that they remain available.
+
+Coordinator monitoring determines worker ONLINE and OFFLINE transitions.
+
+---
+
+### Worker Lifecycle
+
+Current lifecycle:
+
+```text
+Worker Start
+      ↓
+Load Identity
+      ↓
+Register If Needed
+      ↓
+Persist Identity
+      ↓
+Start Heartbeat Loop
+      ↓
+Wait For Work
+```
+
+Future lifecycle:
+
+```text
+Worker Start
+      ↓
+Register
+      ↓
+Heartbeat
+      ↓
+Receive Training Job
+      ↓
+Train Model
+      ↓
+Submit Update
+      ↓
+Wait For Next Job
+```
 
 ## Dataset Manager
 

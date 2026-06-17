@@ -1,5 +1,7 @@
+from worker.runtime.worker_runtime import WorkerRuntime
 def main():
-    print("FedForge Worker")
+    runtime = WorkerRuntime()
 
-if __name__ == "__main__":
+    runtime.run()
+if __name__ == '__main__':
     main()
