@@ -311,6 +311,141 @@ Submit Update
       ↓
 Wait For Next Job
 ```
+## Worker Event Architecture
+
+To support observability, auditing, debugging, and future monitoring features, FedForge maintains an immutable worker event stream.
+
+Current worker state and historical worker state are intentionally stored separately.
+
+### Current State
+
+Stored in:
+
+```text
+workers
+```
+
+Purpose:
+
+Represent the latest known worker state.
+
+Example:
+
+```text
+worker_id
+status
+last_seen
+```
+
+### Historical State
+
+Stored in:
+
+```text
+worker_events
+```
+
+Purpose:
+
+Record significant worker lifecycle transitions.
+
+Examples:
+
+```text
+WORKER_REGISTERED
+WORKER_ONLINE
+WORKER_OFFLINE
+```
+
+Events are immutable.
+
+Historical records are never modified or deleted.
+
+New events are appended whenever a meaningful worker state transition occurs.
+
+---
+
+### Event Flow
+
+```text
+Worker Registration
+        ↓
+WorkerRegistry
+        ↓
+EventLogger
+        ↓
+WorkerEventRepository
+        ↓
+PostgreSQL
+```
+
+```text
+Heartbeat Timeout
+        ↓
+WorkerMonitor
+        ↓
+EventLogger
+        ↓
+WorkerEventRepository
+        ↓
+PostgreSQL
+```
+
+---
+
+### Event Logger
+
+Component:
+
+```text
+EventLogger
+```
+
+Purpose:
+
+Centralize business event creation.
+
+Responsibilities:
+
+```text
+Create events
+Apply timestamp policy
+Persist events through repositories
+```
+
+EventLogger does not own:
+
+```text
+Database sessions
+Transactions
+SQLAlchemy models
+```
+
+Persistence remains delegated to repositories.
+
+---
+
+### Worker Lifecycle History
+
+Example worker history:
+
+```text
+WORKER_REGISTERED
+WORKER_ONLINE
+WORKER_OFFLINE
+WORKER_ONLINE
+WORKER_OFFLINE
+```
+
+This history enables future:
+
+```text
+Worker timelines
+Activity feeds
+Uptime analytics
+Availability graphs
+Operational auditing
+```
 
 ## Dataset Manager
 

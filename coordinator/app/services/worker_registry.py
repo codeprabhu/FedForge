@@ -1,9 +1,10 @@
 from uuid import uuid4
 from datetime import datetime, UTC
-from coordinator.app.models.enums import WorkerStatus
+from coordinator.app.models.enums import WorkerStatus, EventType
 class WorkerRegistry:
-    def __init__(self, repository):
+    def __init__(self, repository, event_logger):
         self.repository = repository
+        self.event_logger = event_logger
 
     def register_worker(self, worker_data):
         worker_id = str(uuid4())
@@ -16,6 +17,7 @@ class WorkerRegistry:
             "last_seen" : None,
         }
         self.repository.save(worker)
+        self.event_logger.log(worker_id, EventType.WORKER_REGISTERED)
         return worker
     
     def get_all_workers(self):
@@ -30,7 +32,10 @@ class WorkerRegistry:
         if(worker is None):
             return None
         worker["last_seen"] = datetime.now(UTC)
+        previous_status = worker["status"]
         worker["status"] = WorkerStatus.ONLINE
-
         self.repository.update(worker)
+        if(previous_status != WorkerStatus.ONLINE):
+            self.event_logger.log(worker_id, EventType.WORKER_ONLINE)
+        
         return worker
