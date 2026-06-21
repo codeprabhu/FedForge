@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends  # type: ignore
-from coordinator.app.models.worker import WorkerRegistrationRequest
-from coordinator.app.api.dependencies import get_worker_registry
-from coordinator.app.services.worker_registry import WorkerRegistry
+from app.models.worker import WorkerRegistrationRequest
+from app.api.dependencies import get_worker_registry
+from app.services.worker_registry import WorkerRegistry
 
 router  = APIRouter()
 

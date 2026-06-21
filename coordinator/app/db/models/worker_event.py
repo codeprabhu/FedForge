@@ -4,7 +4,7 @@ from sqlalchemy import Column # type: ignore
 from sqlalchemy import String # type: ignore
 from sqlalchemy import DateTime # type: ignore
 
-from coordinator.app.db.base import Base
+from app.db.base import Base
 
 class WorkerEvent(Base):
     __tablename__ = "worker_events"

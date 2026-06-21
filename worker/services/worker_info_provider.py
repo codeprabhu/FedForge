@@ -1,7 +1,7 @@
 import socket
 import os
 
-from worker.config import WORKER_VERSION
+from core.config import WORKER_VERSION
 class WorkerInfoProvider:
     def get_worker_info(self):
         return {

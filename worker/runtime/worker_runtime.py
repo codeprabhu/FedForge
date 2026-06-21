@@ -1,12 +1,12 @@
-from worker.config import COORDINATOR_URL, HEARTBEAT_INTERVAL_SECONDS
-from worker.storage.identity_store import IdentityStore
+from core.config import COORDINATOR_URL, HEARTBEAT_INTERVAL_SECONDS
+from storage.identity_store import IdentityStore
 
-from worker.services.identity_manager import IdentityManager
-from worker.services.worker_client import WorkerClient
-from worker.services.registration_service import RegistrationService
+from services.identity_manager import IdentityManager
+from services.worker_client import WorkerClient
+from services.registration_service import RegistrationService
 
-from worker.services.heartbeat_service import HeartbeatService
-from worker.services.worker_info_provider import WorkerInfoProvider
+from services.heartbeat_service import HeartbeatService
+from services.worker_info_provider import WorkerInfoProvider
 
 class WorkerRuntime:
     def run(self):

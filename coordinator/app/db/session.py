@@ -6,7 +6,7 @@ Provides request-scoped sessions.
 Do not create UnitOfWork inside request handlers.
 """
 
-from coordinator.app.db.database import SessionLocal
+from app.db.database import SessionLocal
 
 def get_db():
     db = SessionLocal()

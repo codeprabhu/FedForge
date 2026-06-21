@@ -1,8 +1,8 @@
 import json
 from pathlib import Path
 
-from worker.models.worker_identity import WorkerIdentity
-from worker.exceptions.identity_corrupted_error import IdentityCorruptedError
+from models.worker_identity import WorkerIdentity
+from exceptions.identity_corrupted_error import IdentityCorruptedError
 
 class IdentityStore:
     def __init__(self, path = "data/worker_identity.json"):

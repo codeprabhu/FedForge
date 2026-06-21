@@ -1,6 +1,6 @@
 from uuid import uuid4
 from datetime import datetime, UTC
-from coordinator.app.models.enums import WorkerStatus, EventType
+from app.models.enums import WorkerStatus, EventType
 class WorkerRegistry:
     def __init__(self, repository, event_logger):
         self.repository = repository

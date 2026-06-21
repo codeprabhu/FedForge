@@ -1,17 +1,17 @@
 import asyncio
 from datetime import datetime, timedelta, UTC
 
-from coordinator.app.models.enums import WorkerStatus
-from coordinator.app.core.config import (
+from app.models.enums import WorkerStatus
+from app.core.config import (
     OFFLINE_THRESHOLD_SECONDS,
     HEARTBEAT_INTERVAL_SECONDS
 )
 
-from coordinator.app.db.unit_of_work import UnitOfWork
-from coordinator.app.repositories.postgres_worker_repository import PostgresWorkerRepository
-from coordinator.app.repositories.worker_event_repository import WorkerEventRepository
-from coordinator.app.services.event_logger import EventLogger
-from coordinator.app.models.enums import EventType
+from app.db.unit_of_work import UnitOfWork
+from app.repositories.postgres_worker_repository import PostgresWorkerRepository
+from app.repositories.worker_event_repository import WorkerEventRepository
+from app.services.event_logger import EventLogger
+from app.models.enums import EventType
 
 class WorkerMonitor:
 

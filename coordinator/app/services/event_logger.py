@@ -1,5 +1,5 @@
 from datetime import datetime, UTC
-from coordinator.app.repositories.worker_event_repository import WorkerEventRepository
+from app.repositories.worker_event_repository import WorkerEventRepository
 
 class EventLogger:
     def __init__(self, event_repository:WorkerEventRepository):

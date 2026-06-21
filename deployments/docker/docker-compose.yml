@@ -1,19 +1,47 @@
 services:
+
   postgres:
     image: postgres:17
 
     container_name: fedforge-postgres
 
-    environment :
+    environment:
       POSTGRES_DB: fedforge
-      POSTGRES_USER : fedforge
-      POSTGRES_PASSWORD : fedforge
+      POSTGRES_USER: fedforge
+      POSTGRES_PASSWORD: fedforge
 
     ports:
       - "5433:5432"
 
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  coordinator:
+    build:
+      context: ../../coordinator
+      dockerfile: Dockerfile
+
+    container_name: fedforge-coordinator
+
+    depends_on:
+      - postgres
+
+    environment:
+      DATABASE_URL: postgresql://fedforge:fedforge@postgres:5432/fedforge
+
+    ports:
+      - "8000:8000"
+
+  worker:
+    build:
+      context: ../../worker
+      dockerfile: Dockerfile
+
+    depends_on:
+      - coordinator
+
+    environment:
+      COORDINATOR_URL: http://coordinator:8000
 
 volumes:
   postgres_data:

@@ -1,10 +1,10 @@
 from fastapi import FastAPI # type: ignore
-from coordinator.app.api.workers import router as worker_router
+from app.api.workers import router as worker_router
 
 from contextlib import asynccontextmanager
 import asyncio
 
-from coordinator.app.services.worker_monitor import WorkerMonitor
+from app.services.worker_monitor import WorkerMonitor
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):

@@ -1,4 +1,4 @@
-from worker.models.worker_identity import (
+from models.worker_identity import (
     WorkerIdentity
 )
 

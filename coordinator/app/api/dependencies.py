@@ -1,9 +1,9 @@
 from fastapi import Depends # type: ignore
-from coordinator.app.db.session import get_db
-from coordinator.app.repositories.postgres_worker_repository import PostgresWorkerRepository
-from coordinator.app.services.worker_registry import WorkerRegistry
-from coordinator.app.repositories.worker_event_repository import WorkerEventRepository
-from coordinator.app.services.event_logger import EventLogger
+from app.db.session import get_db
+from app.repositories.postgres_worker_repository import PostgresWorkerRepository
+from app.services.worker_registry import WorkerRegistry
+from app.repositories.worker_event_repository import WorkerEventRepository
+from app.services.event_logger import EventLogger
 
 def get_worker_repository(
         db = Depends(get_db)

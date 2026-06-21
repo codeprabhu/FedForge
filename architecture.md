@@ -1,46 +1,41 @@
-# FedForge v1 Architecture Document
+# FedForge Architecture
 
-## Overview
+## 1. Vision
 
-FedForge is a distributed federated-learning orchestration platform designed to simulate and manage federated training workloads across multiple worker nodes.
+### Goal
 
-The system separates orchestration, training, storage, monitoring, and visualization concerns into distinct components.
+FedForge is a distributed federated-learning orchestration platform designed to coordinate training workloads across independent worker nodes.
 
-The primary objective is not simply to implement FedAvg, but to build a reusable distributed training platform capable of running on multiple machines and supporting future extensions such as authentication, secure aggregation, Kubernetes deployment, and additional training strategies.
+The objective is not merely to implement FedAvg, but to build a reusable distributed systems platform capable of supporting:
 
----
-
-# Core Design Principles
-
-## Separation of Concerns
-
-Each service has a clearly defined responsibility.
-
-Coordinator:
-
-* Scheduling
-* Aggregation
-* Worker management
-
-Worker:
-
-* Local training
-* Dataset ownership
-* Metric reporting
-
-Database:
-
-* Metadata persistence
-
-Frontend:
-
-* Visualization and control
-
-No service should perform responsibilities belonging to another service.
+* Federated learning experiments
+* Multiple aggregation strategies
+* Distributed worker pools
+* Monitoring and observability
+* Multi-machine deployments
+* Future security and authentication features
 
 ---
 
-## Data Locality
+## 2. Architectural Principles
+
+### Separation of Concerns
+
+Each component owns a clearly defined responsibility.
+
+| Component   | Responsibility                      |
+| ----------- | ----------------------------------- |
+| Coordinator | Orchestration and control           |
+| Worker      | Training and dataset ownership      |
+| PostgreSQL  | Metadata persistence                |
+| Frontend    | Visualization and control           |
+| Redis       | Coordination and messaging (future) |
+
+No component should perform responsibilities belonging to another component.
+
+---
+
+### Data Locality
 
 Datasets belong to workers.
 
@@ -48,16 +43,18 @@ Training data must never pass through the coordinator.
 
 The coordinator only handles:
 
+* Scheduling commands
 * Model parameters
 * Metrics
 * Metadata
-* Scheduling commands
 
-This mirrors real federated learning systems.
+This mirrors production federated learning systems.
 
 ---
 
-## Fault Tolerance
+### Fault Tolerance
+
+Workers are treated as disposable compute resources.
 
 Workers may:
 
@@ -66,126 +63,123 @@ Workers may:
 * Restart
 * Become unavailable
 
-The coordinator must continue operating even when workers disappear.
+The coordinator must continue operating despite worker failures.
 
-Offline workers should not block orchestration.
+Training rounds operate on available capacity rather than fixed worker identities.
 
 ---
 
-## Container First
+### Container First
 
 Every service must be deployable as a Docker container.
 
-Local development and deployment environments should use identical container images.
+Development and production should run identical container images.
 
 ---
 
-## Multi-Machine Ready
+### Multi-Machine Ready
 
-The architecture should support deployment across:
+The architecture must support:
 
-* Single machine
+* Single machine deployment
 * Multiple VMs
-* Cloud instances
+* Cloud infrastructure
 
 without requiring architectural changes.
 
 ---
 
-# High-Level Architecture
+## 3. System Architecture
 
-```
-                Browser
-                    |
-                    |
-              React Frontend
-                    |
-                    |
-                FastAPI API
-                    |
-  ------------------------------------
-  |                |                 |
-  |                |                 |
-```
-
-PostgreSQL         Redis          WebSockets
-|                |                 |
-------------------------------------
-|
+```text
+Browser
+    |
+React Frontend
+    |
+Coordinator API
+    |
 Coordinator
+    |
+------------------------------------------------
+|                    |                         |
+PostgreSQL         Redis                  WebSockets
 |
--
-
-|                    |                         |
-|                    |                         |
-Worker A          Worker B                 Worker C
-|                    |                         |
-Dataset A        Dataset B               Dataset C
+------------------------------------------------
+|
+Worker Pool
+|
+|------ Worker A
+|------ Worker B
+|------ Worker C
+```
 
 ---
 
-# Component Design
+## 4. Coordinator Architecture
 
-## Coordinator Service
+### Purpose
 
-The coordinator acts as the control plane.
+The coordinator acts as the system control plane.
 
-Responsibilities:
+### Responsibilities
 
 * Worker registration
 * Heartbeat tracking
+* Worker monitoring
+* Event generation
 * Training orchestration
 * Round management
-* Model aggregation
-* Metric collection
-* Event publication
+* Aggregation
+* Metrics collection
 
-The coordinator never performs local training.
+### Non-Responsibilities
 
-The coordinator never owns training datasets.
+The coordinator must never:
+
+* Own datasets
+* Perform training
+* Store raw training data
 
 ---
 
-## Worker Service
+## 5. Worker Architecture
+
+### Purpose
 
 Workers act as execution nodes.
 
-Responsibilities:
+### Responsibilities
 
 * Maintain local datasets
-* Receive training jobs
-* Execute local training
+* Execute training
 * Report metrics
-* Return model updates
+* Submit model updates
 * Send heartbeats
 
 Workers may run on:
 
-* Local machine
-* Docker container
-* Separate VM
-* Cloud instance
+* Local machines
+* Docker containers
+* VMs
+* Cloud instances
 
 Each worker is independent.
 
 ---
-## Worker Runtime Architecture
 
-The worker process follows a layered architecture similar to the coordinator.
+### Internal Worker Architecture
 
 ```text
 WorkerRuntime
-        ↓
+      ↓
 RegistrationService
-        ↓
+      ↓
 WorkerClient
-        ↓
+      ↓
 Coordinator API
 ```
 
-Worker responsibilities are divided into dedicated services.
-
-### Identity Layer
+#### Identity Layer
 
 Components:
 
@@ -195,17 +189,16 @@ IdentityStore
 IdentityManager
 ```
 
-Purpose:
+Responsibilities:
 
-Persist worker identity across restarts.
+* Persist worker identity
+* Recover identity after restart
 
 Identity generation remains coordinator-owned.
 
-Workers receive identities during registration and persist them locally.
-
 ---
 
-### Runtime Layer
+#### Runtime Layer
 
 Component:
 
@@ -213,23 +206,16 @@ Component:
 WorkerRuntime
 ```
 
-Purpose:
-
-Own worker lifecycle orchestration.
-
 Responsibilities:
 
-```text
-Startup
-Registration
-Heartbeat startup
-Future training execution
-Future metrics collection
-```
+* Startup orchestration
+* Registration
+* Heartbeat startup
+* Future training execution
 
 ---
 
-### Communication Layer
+#### Communication Layer
 
 Component:
 
@@ -237,28 +223,15 @@ Component:
 WorkerClient
 ```
 
-Purpose:
+Responsibilities:
 
-Own all coordinator communication.
-
-Current operations:
-
-```text
-Register Worker
-Send Heartbeat
-```
-
-Future operations:
-
-```text
-Receive Training Jobs
-Submit Model Updates
-Report Metrics
-```
+* Registration
+* Heartbeats
+* Future task communication
 
 ---
 
-### Heartbeat Layer
+#### Heartbeat Layer
 
 Component:
 
@@ -266,56 +239,52 @@ Component:
 HeartbeatService
 ```
 
-Purpose:
+Responsibilities:
 
-Maintain worker liveness.
-
-Workers periodically notify the coordinator that they remain available.
-
-Coordinator monitoring determines worker ONLINE and OFFLINE transitions.
+* Maintain worker liveness
+* Periodically notify coordinator
 
 ---
 
 ### Worker Lifecycle
 
-Current lifecycle:
+Current:
 
 ```text
 Worker Start
-      ↓
+    ↓
 Load Identity
-      ↓
+    ↓
 Register If Needed
-      ↓
+    ↓
 Persist Identity
-      ↓
+    ↓
 Start Heartbeat Loop
-      ↓
+    ↓
 Wait For Work
 ```
 
-Future lifecycle:
+Future:
 
 ```text
 Worker Start
-      ↓
+    ↓
 Register
-      ↓
-Heartbeat
-      ↓
-Receive Training Job
-      ↓
-Train Model
-      ↓
+    ↓
+Receive Training Task
+    ↓
+Train
+    ↓
 Submit Update
-      ↓
-Wait For Next Job
+    ↓
+Wait For Next Task
 ```
-## Worker Event Architecture
 
-To support observability, auditing, debugging, and future monitoring features, FedForge maintains an immutable worker event stream.
+---
 
-Current worker state and historical worker state are intentionally stored separately.
+## 6. Monitoring & Event Architecture
+
+FedForge separates:
 
 ### Current State
 
@@ -325,17 +294,13 @@ Stored in:
 workers
 ```
 
-Purpose:
+Contains:
 
-Represent the latest known worker state.
+* Current status
+* Last heartbeat
+* Latest metadata
 
-Example:
-
-```text
-worker_id
-status
-last_seen
-```
+---
 
 ### Historical State
 
@@ -345,9 +310,12 @@ Stored in:
 worker_events
 ```
 
-Purpose:
+Contains:
 
-Record significant worker lifecycle transitions.
+* Worker lifecycle history
+* Operational audit trail
+
+Events are immutable.
 
 Examples:
 
@@ -357,122 +325,85 @@ WORKER_ONLINE
 WORKER_OFFLINE
 ```
 
-Events are immutable.
-
-Historical records are never modified or deleted.
-
-New events are appended whenever a meaningful worker state transition occurs.
-
 ---
 
 ### Event Flow
 
+Registration:
+
 ```text
-Worker Registration
-        ↓
 WorkerRegistry
-        ↓
+    ↓
 EventLogger
-        ↓
+    ↓
 WorkerEventRepository
-        ↓
+    ↓
 PostgreSQL
 ```
 
+Offline Detection:
+
 ```text
-Heartbeat Timeout
-        ↓
 WorkerMonitor
-        ↓
+    ↓
 EventLogger
-        ↓
+    ↓
 WorkerEventRepository
-        ↓
+    ↓
 PostgreSQL
 ```
 
 ---
 
-### Event Logger
-
-Component:
-
-```text
-EventLogger
-```
-
-Purpose:
-
-Centralize business event creation.
+### EventLogger
 
 Responsibilities:
 
-```text
-Create events
-Apply timestamp policy
-Persist events through repositories
-```
+* Create events
+* Apply timestamp policy
+* Persist through repositories
 
 EventLogger does not own:
 
-```text
-Database sessions
-Transactions
-SQLAlchemy models
-```
-
-Persistence remains delegated to repositories.
+* Database sessions
+* Transactions
+* SQLAlchemy models
 
 ---
 
-### Worker Lifecycle History
+## 7. Training Architecture
 
-Example worker history:
+### Dataset Manager
 
-```text
-WORKER_REGISTERED
-WORKER_ONLINE
-WORKER_OFFLINE
-WORKER_ONLINE
-WORKER_OFFLINE
-```
+Responsibilities:
 
-This history enables future:
+* Download datasets
+* Partition datasets
+* Assign shards
+* Track ownership
 
-```text
-Worker timelines
-Activity feeds
-Uptime analytics
-Availability graphs
-Operational auditing
-```
-
-## Dataset Manager
-
-The dataset manager is responsible for:
-
-* Downloading datasets
-* Partitioning datasets
-* Assigning shards
-* Tracking ownership
-
-Supported partition strategies:
+Supported strategies:
 
 * IID
 * Non-IID
-* Dirichlet (future)
 
-Datasets are stored locally on workers.
+Future:
+
+* Dirichlet partitioning
+
+Datasets remain worker-local.
 
 ---
 
-## Aggregation Engine
+### Aggregation Engine
 
-The aggregation engine is a pluggable module.
+The aggregation engine is pluggable.
 
 Interface:
 
+```text
 AggregationStrategy
+```
 
 Implementations:
 
@@ -480,141 +411,145 @@ Implementations:
 * FedProx (future)
 * FedAdam (future)
 
-The coordinator uses the aggregation engine after receiving worker updates.
+The coordinator performs aggregation after receiving worker updates.
 
 ---
 
-## Metrics Service
+### Metrics Service
 
 Tracks:
 
-* Worker uptime
-* Round duration
 * Accuracy
 * Loss
 * Participation rate
 * Throughput
+* Worker uptime
+* Round duration
 
 Metrics are persisted in PostgreSQL.
 
 ---
 
-## Frontend
+## 8. Persistence Layer
 
-Provides:
-
-Dashboard
-Workers View
-Experiments View
-Metrics View
-
-The frontend never directly accesses workers.
-
-All communication occurs through coordinator APIs.
-
----
-
-# Communication Architecture
-
-## Registration
-
-Worker Startup
-
-Worker -> Coordinator
-
-register(worker_id)
-
-Coordinator stores worker metadata.
-
----
-
-## Heartbeats
-
-Every worker sends:
-
-heartbeat()
-
-at a fixed interval.
-
-Coordinator updates:
-
-last_seen
-
-Offline workers are detected automatically.
-
----
-
-## Training Round
-
-Coordinator:
-
-1. Select workers
-2. Send model
-3. Start round
-
-Workers:
-
-1. Receive model
-2. Train locally
-3. Return updates
-
-Coordinator:
-
-1. Collect updates
-2. Aggregate weights
-3. Publish metrics
-
----
-
-# Persistence Layer
-
-## Workers Table
+### Workers Table
 
 Stores:
 
+```text
 worker_id
 status
 last_seen
-uptime
 dataset_size
+uptime
+```
 
 ---
 
-## Experiments Table
+### Worker Events Table
 
 Stores:
 
+```text
+event_id
+worker_id
+event_type
+created_at
+```
+
+---
+
+### Experiments Table (Future)
+
+Stores:
+
+```text
 experiment_id
 dataset
 strategy
 created_at
+```
 
 ---
 
-## Rounds Table
+### Rounds Table (Future)
 
 Stores:
 
+```text
 round_number
 accuracy
 loss
 duration
+```
 
 ---
 
-## Metrics Table
+### Metrics Table (Future)
 
 Stores:
 
+```text
 worker metrics
 training metrics
 resource metrics
+```
 
 ---
 
-# Deployment Model
+## 9. Communication Flows
 
-Development
+### Registration
+
+```text
+Worker
+    ↓
+Register
+    ↓
+Coordinator
+    ↓
+Persist Worker
+```
+
+---
+
+### Heartbeats
+
+```text
+Worker
+    ↓
+Heartbeat
+    ↓
+Coordinator
+    ↓
+Update last_seen
+```
+
+---
+
+### Training Round
+
+```text
+Coordinator
+    ↓
+Select Workers
+    ↓
+Distribute Model
+    ↓
+Train Locally
+    ↓
+Receive Updates
+    ↓
+Aggregate
+    ↓
+Publish Metrics
+```
+
+---
+
+## 10. Deployment Architecture
+
+### Development
 
 Docker Compose
 
@@ -622,55 +557,50 @@ Services:
 
 * coordinator
 * postgres
+* worker
+
+Future:
+
 * redis
 * frontend
-* worker
 
 ---
 
-Production Simulation
+### Production Simulation
 
-VM1
+VM 1
 
 * coordinator
 * postgres
 * redis
 * frontend
 
-VM2
-
-* worker
-
-VM3
-
-* worker
-
-VM4
+VM 2+
 
 * worker
 
 Workers connect through network endpoints.
 
-No code changes required.
+No architectural changes required.
 
 ---
 
-# Observability
+## 11. Observability
 
-Worker Metrics
+### Worker Metrics
 
 * Online status
 * Last heartbeat
 * Dataset size
 * Uptime
 
-Coordinator Metrics
+### Coordinator Metrics
 
 * Active workers
 * Active rounds
 * Aggregation latency
 
-Training Metrics
+### Training Metrics
 
 * Accuracy
 * Loss
@@ -678,42 +608,43 @@ Training Metrics
 
 ---
 
-# Version 2 Roadmap
+## 12. Future Roadmap
 
-Authentication
+### Authentication
 
 * JWT
 * OAuth
 
-Authorization
+### Authorization
 
 * RBAC
 
-Infrastructure
+### Infrastructure
 
 * Kubernetes
 * Helm
 
-Monitoring
+### Monitoring
 
 * Prometheus
 * Grafana
 
-Tracing
+### Tracing
 
 * OpenTelemetry
 
-Federated Learning
+### Federated Learning
 
 * Secure Aggregation
 * Differential Privacy
 * FedProx
 * FedAdam
 
-Multi-Tenancy
+### Multi-Tenancy
 
 * Organizations
 * User Accounts
 * Project Isolation
 
----
+```
+```

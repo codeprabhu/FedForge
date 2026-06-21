@@ -1,5 +1,5 @@
-from coordinator.app.db.models.worker_event import WorkerEvent
-from coordinator.app.core.config import EVENT_LIMIT
+from app.db.models.worker_event import WorkerEvent
+from app.core.config import EVENT_LIMIT
 class WorkerEventRepository:
     def __init__(self, db):
         self.db = db

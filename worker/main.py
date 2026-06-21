@@ -1,4 +1,4 @@
-from worker.runtime.worker_runtime import WorkerRuntime
+from runtime.worker_runtime import WorkerRuntime
 def main():
     runtime = WorkerRuntime()
 

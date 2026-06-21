@@ -2,7 +2,7 @@ from sqlalchemy import Column # type: ignore
 from sqlalchemy import String # type: ignore
 from sqlalchemy import DateTime # type: ignore
 from sqlalchemy import Integer # type: ignore
-from coordinator.app.db.base import Base
+from app.db.base import Base
 
 class Worker(Base):
     __tablename__ = "workers"
