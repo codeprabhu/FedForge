@@ -1,9 +1,8 @@
-from pydantic import BaseModel
-from datetime import datetime
+from pydantic import BaseModel, Field
 class WorkerRegistrationRequest(BaseModel):
-    hostname: str
-    ip : str
+    hostname: str = Field(min_length= 1)
+    ip : str = Field(min_length = 1)
 
-    cpu_cores: int
-    memory_gb: int
-    worker_version: str
+    cpu_cores: int = Field(gt=0)
+    memory_gb: int = Field(gt = 0)
+    worker_version: str = Field(min_length = 1)

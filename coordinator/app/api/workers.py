@@ -2,15 +2,14 @@ from fastapi import APIRouter, Depends  # type: ignore
 from app.models.worker import WorkerRegistrationRequest
 from app.api.dependencies import get_worker_registry
 from app.services.worker_registry import WorkerRegistry
+from fastapi import HTTPException # type: ignore
 
 router  = APIRouter()
 
 @router.post("/workers/register")
 def register_worker(payload : WorkerRegistrationRequest,
                     worker_registry : WorkerRegistry = Depends(get_worker_registry)):
-    worker = worker_registry.register_worker(
-        payload.model_dump()
-    )
+    worker = worker_registry.register_worker(payload)
     return worker
 
 @router.get("/workers")
@@ -22,9 +21,5 @@ def heartbeat(worker_id:str,
               worker_registry: WorkerRegistry = Depends(get_worker_registry)):
     worker = worker_registry.heartbeat(worker_id)
     if worker is None:
-        return {
-            "error": "worker not found"
-        }
-    return {
-        "status":"heartbeat received"
-    }
+        raise HTTPException(status_code = 404, detail = "Worker Not Found")
+    return {"status":"heartbeat received"}

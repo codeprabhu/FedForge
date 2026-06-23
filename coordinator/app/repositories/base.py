@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-class WorkerRepository(ABC):
+class Repository(ABC):
     @abstractmethod
     def save(self, worker):
         pass
@@ -13,7 +13,4 @@ class WorkerRepository(ABC):
     def get_all(self):
         pass
 
-    @abstractmethod
-    def update(self, worker):
-        pass
     

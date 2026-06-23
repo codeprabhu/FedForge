@@ -33,17 +33,13 @@ class WorkerMonitor:
                 event_logger = EventLogger(event_repository)
 
                 for worker in repository.get_all():
-                    if worker["last_seen"] is None:
+                    if worker.last_seen is None:
                         continue
-                    delta = now - worker["last_seen"]
-                    if (now - worker["last_seen"]) > timedelta(
+
+                    if (now - worker.last_seen) > timedelta(
                         seconds=OFFLINE_THRESHOLD_SECONDS):
-                        if worker["status"] != WorkerStatus.OFFLINE:
-                            worker["status"] = WorkerStatus.OFFLINE
-                    
-                            repository.update(worker)
+                        if worker.status != WorkerStatus.OFFLINE:
+                            worker.status = WorkerStatus.OFFLINE
                          
-                            event_logger.log(worker["worker_id"], EventType.WORKER_OFFLINE)
-            await asyncio.sleep(
-                HEARTBEAT_INTERVAL_SECONDS
-            )
+                            event_logger.log(worker.worker_id, EventType.WORKER_OFFLINE)
+            await asyncio.sleep(HEARTBEAT_INTERVAL_SECONDS)

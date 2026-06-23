@@ -2,6 +2,9 @@ from sqlalchemy import Column # type: ignore
 from sqlalchemy import String # type: ignore
 from sqlalchemy import DateTime # type: ignore
 from sqlalchemy import Integer # type: ignore
+from sqlalchemy import Enum #type: ignore
+
+from app.models.enums import WorkerStatus
 from app.db.base import Base
 
 class Worker(Base):
@@ -32,7 +35,7 @@ class Worker(Base):
     )
     
     status = Column(
-        String, nullable = False
+        Enum(WorkerStatus), nullable = False
     )
 
     registered_at = Column(
