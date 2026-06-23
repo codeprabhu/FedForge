@@ -8,6 +8,7 @@ class PostgresWorkerRepository(Repository):
     
     def save(self,worker):
         self.db.add(worker)
+        self.db.flush()
  
     def get(self, worker_id):
 

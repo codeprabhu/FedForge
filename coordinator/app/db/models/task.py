@@ -50,7 +50,10 @@ class Task(Base):
         DateTime(timezone=True),
         nullable=False
     )
-
+    assigned_at = Column(
+        DateTime(timezone = True),
+        nullable=True
+    )
     started_at = Column(
         DateTime(timezone=True),
         nullable=True

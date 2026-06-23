@@ -243,6 +243,7 @@ Success Criteria:
 
 # Day 6 — Task Architecture
 
+✅ Complete
 ## Objective
 
 Introduce the concept of distributed work.
@@ -264,35 +265,18 @@ Execute Tasks
 This day introduces the foundation that every future training operation will use.
 
 ---
+Implemented:
 
-## Deliverables
-
-Create:
-
-```text
-Task
-TaskStatus
-TaskRepository
-TaskDispatcher
-TaskExecutor
-```
-
-Coordinator Responsibilities:
-
-```text
-Create Tasks
-Assign Tasks
-Track Task Status
-Store Task Results
-```
-
-Worker Responsibilities:
-
-```text
-Receive Tasks
-Execute Tasks
-Return Results
-```
+- Task ORM
+- TaskStatus Enum
+- TaskType Enum
+- TaskRegistry
+- PostgresTaskRepository
+- Task API
+- Task Lifecycle State Machine
+- Lifecycle Validation
+- Database Bootstrap Integration
+- ORM-Based Repositories
 
 ---
 
@@ -305,39 +289,215 @@ EchoTask
 ```
 
 Example:
+# Day 6 — Task Architecture
 
-```json
-{
-  "task_type": "echo",
-  "message": "hello"
-}
+✅ Complete
+
+## Objectives
+
+Introduce the concept of distributed work.
+
+Workers can now participate in task lifecycle management.
+
+---
+
+## Implemented
+
+### Task System
+
+Created:
+
+```text
+Task ORM
+TaskStatus Enum
+TaskType Enum
+TaskRegistry
+PostgresTaskRepository
+Task API
 ```
 
-Worker Result:
+Task States:
 
-```json
-{
-  "result": "hello"
-}
+```text
+CREATED
+ASSIGNED
+RUNNING
+COMPLETED
+FAILED
+CANCELLED
 ```
+
+Task Types:
+
+```text
+ECHO
+TRAINING
+```
+
+---
+
+## Task Lifecycle
+
+Implemented:
+
+```text
+CREATED
+↓
+ASSIGNED
+↓
+RUNNING
+↓
+COMPLETED
+```
+
+Failure Path:
+
+```text
+ASSIGNED/RUNNING
+↓
+FAILED
+```
+
+Illegal state transitions are rejected through lifecycle validation inside TaskRegistry.
+
+---
+
+## Architectural Refactor
+
+Refactored repositories to return ORM objects instead of dictionaries.
+
+Result:
+
+```text
+Repositories
+↓
+ORM Models
+↓
+Services
+```
+
+Benefits:
+
+* Cleaner domain model
+* Less mapping code
+* Better SQLAlchemy integration
+* Consistent architecture between workers, tasks, and events
+
+---
+
+## Database Bootstrap
+
+Integrated:
+
+```python
+create_tables()
+```
+
+into coordinator startup.
+
+Result:
+
+```bash
+docker compose up
+```
+
+automatically creates missing tables.
+
+Alembic migrations intentionally deferred until schema stabilization.
+
+---
+
+## SQLAlchemy Flush Discovery
+
+Issue:
+
+```text
+Tasks created inside a transaction
+could not be immediately retrieved.
+```
+
+Root Cause:
+
+```text
+Session.add()
+does not flush SQL statements.
+```
+
+Resolution:
+
+Repositories now perform:
+
+```python
+db.add(entity)
+db.flush()
+```
+
+Result:
+
+```text
+Entities become queryable
+inside the same transaction
+before commit.
+```
+
+---
+
+## Verification Completed
+
+Verified:
+
+```text
+Task creation
+Task retrieval
+Task persistence
+Task lifecycle transitions
+Illegal transition rejection
+Timestamp persistence
+Task API endpoints
+Container startup compatibility
+Database bootstrap
+Repository refactor correctness
+```
+
+Verified Lifecycle:
+
+```text
+CREATE
+↓
+ASSIGN
+↓
+START
+↓
+COMPLETE
+```
+
+Verified Persistence:
+
+```text
+created_at
+assigned_at
+started_at
+completed_at
+```
+
+stored correctly in PostgreSQL.
 
 ---
 
 ## Success Criteria
 
-```text
-Coordinator
-↓
-Assign Task
-↓
-Worker Executes
-↓
-Worker Returns Result
-↓
-Coordinator Stores Result
-```
+✅ Coordinator creates tasks
 
----
+✅ Tasks persist in PostgreSQL
+
+✅ Lifecycle transitions function correctly
+
+✅ Illegal transitions are rejected
+
+✅ Task APIs function correctly
+
+✅ Distributed task foundation established
+
 
 # Day 7 — Worker Metrics & Health
 

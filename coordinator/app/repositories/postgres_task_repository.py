@@ -9,6 +9,7 @@ class PostgresTaskRepository(Repository):
 
     def save(self, task):
         self.db.add(task)
+        self.db.flush()
 
     def get(self, task_id):
 

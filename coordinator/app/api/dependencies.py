@@ -1,9 +1,13 @@
 from fastapi import Depends # type: ignore
+
 from app.db.session import get_db
 from app.repositories.postgres_worker_repository import PostgresWorkerRepository
 from app.services.worker_registry import WorkerRegistry
 from app.repositories.worker_event_repository import WorkerEventRepository
 from app.services.event_logger import EventLogger
+
+from app.repositories.postgres_task_repository import PostgresTaskRepository
+from app.services.task_registry import TaskRegistry
 
 def get_worker_repository(
         db = Depends(get_db)
@@ -24,3 +28,10 @@ def get_worker_registry(
         )
 ):
     return WorkerRegistry(repository,event_logger)
+
+def get_task_repository(db = Depends(get_db)):
+    return PostgresTaskRepository(db)
+
+def get_task_registry(repository = Depends(get_task_repository)):
+    return TaskRegistry(repository)
+
