@@ -1,13 +1,18 @@
+import time
+from runtime.service_runner import ServiceRunner
+
 from core.config import COORDINATOR_URL, HEARTBEAT_INTERVAL_SECONDS
 from storage.identity_store import IdentityStore
 
-from services.identity_manager import IdentityManager
-from services.worker_client import WorkerClient
-from services.registration_service import RegistrationService
+from identity.identity_manager import IdentityManager
+from coordinator.worker_client import WorkerClient
+from identity.registration_service import RegistrationService
 
-from services.heartbeat_service import HeartbeatService
-from services.worker_info_provider import WorkerInfoProvider
+from monitoring.heartbeat_service import HeartbeatService
+from monitoring.worker_info_provider import WorkerInfoProvider
 
+from monitoring.metrics_reporter import MetricsReporter
+from core.config import METRICS_INTERVAL_SECONDS
 class WorkerRuntime:
     def run(self):
         store = IdentityStore()
@@ -22,4 +27,12 @@ class WorkerRuntime:
         worker_info = worker_info_provider.get_worker_info()
         identity = registration_service.register_if_needed(worker_info)
 
-        hearbeat_service.run(identity.worker_id)
+        metrics_reporter = MetricsReporter(worker_client, METRICS_INTERVAL_SECONDS)
+
+        runner = ServiceRunner()
+        runner.start(hearbeat_service, identity.worker_id)
+        runner.start(metrics_reporter, identity.worker_id)
+
+        runner.wait()
+        while True:
+            time.sleep(1)

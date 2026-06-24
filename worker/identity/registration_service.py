@@ -1,4 +1,5 @@
 from models.worker_identity import WorkerIdentity
+from exceptions.coordinator_unavailable_error import CoordinatorUnavailableError
 import requests
 import random
 import time
@@ -31,7 +32,7 @@ class RegistrationService:
         while True:
             try:
                 return self.worker_client.register(worker_info)
-            except requests.ConnectionError:
+            except CoordinatorUnavailableError:
                 jitter = random.uniform(1-REGISTRATION_JITTER_FACTOR, 1+REGISTRATION_JITTER_FACTOR)
                 sleep_time = delay * jitter
 

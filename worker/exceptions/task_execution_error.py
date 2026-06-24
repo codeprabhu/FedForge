@@ -1,0 +1,2 @@
+class TaskExecutionError(Exception):
+    pass

@@ -1,0 +1,2 @@
+class CoordinatorUnavailableError(Exception):
+    pass

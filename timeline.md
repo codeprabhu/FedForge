@@ -528,6 +528,28 @@ Success Criteria:
 Coordinator can inspect worker health.
 
 ---
+Verified:
+
+Worker
+↓
+Heartbeat Thread
+↓
+Metrics Thread
+↓
+Coordinator API
+↓
+PostgreSQL
+↓
+Metrics Retrieval
+
+Verified:
+✓ CPU metrics reporting
+✓ Memory metrics reporting
+✓ Disk metrics reporting
+✓ Metrics persistence
+✓ Metrics history retrieval
+✓ Latest metrics retrieval
+✓ Coordinator restart recovery
 
 # Day 8 — Training Architecture
 
