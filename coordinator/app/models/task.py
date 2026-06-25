@@ -20,3 +20,9 @@ class TaskResponse(BaseModel):
     assigned_at: str | None
     started_at: str | None
     completed_at: str | None
+
+class CompleteTaskRequest(BaseModel):
+    result : dict
+
+class FailTaskRequest(BaseModel):
+    error_message: str

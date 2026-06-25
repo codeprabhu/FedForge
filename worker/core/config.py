@@ -11,7 +11,12 @@ HEARTBEAT_INTERVAL_SECONDS = int(
         "10"
     )
 )
-
+TASK_POLL_INTERVAL_SECONDS = int(
+    os.getenv(
+        "TASK_POLL_INTERVAL_SECONDS",
+        "5"
+    )
+)
 WORKER_VERSION = "1.0.0"
 
 REGISTRATION_INITIAL_DELAY_SECONDS = 1

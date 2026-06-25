@@ -13,6 +13,10 @@ from monitoring.worker_info_provider import WorkerInfoProvider
 
 from monitoring.metrics_reporter import MetricsReporter
 from core.config import METRICS_INTERVAL_SECONDS
+
+from monitoring.task_poller import TaskPoller
+from tasks.task_executor import TaskExecutor
+from core.config import TASK_POLL_INTERVAL_SECONDS
 class WorkerRuntime:
     def run(self):
         store = IdentityStore()
@@ -29,10 +33,13 @@ class WorkerRuntime:
 
         metrics_reporter = MetricsReporter(worker_client, METRICS_INTERVAL_SECONDS)
 
+        task_executor = TaskExecutor()
+        task_poller = TaskPoller(worker_client,task_executor, TASK_POLL_INTERVAL_SECONDS)
+
         runner = ServiceRunner()
         runner.start(hearbeat_service, identity.worker_id)
         runner.start(metrics_reporter, identity.worker_id)
-
+        runner.start(task_poller, identity.worker_id)
         runner.wait()
         while True:
             time.sleep(1)

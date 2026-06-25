@@ -42,3 +42,39 @@ class WorkerClient:
             return response.json()
         except requests.RequestException as error:
             raise CoordinatorUnavailableError("Coordinator Unavailable") from error
+        
+
+    def get_next_task(self, worker_id: str):
+        try:
+            response = requests.post(f"{self.base_url}/workers/{worker_id}/next-task")
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as error:
+            raise CoordinatorUnavailableError("Coordinator Unavailable") from error
+        
+    def start_task(self, task_id: str):
+        try:
+            response = requests.post(f"{self.base_url}/tasks/{task_id}/start")
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as error:
+            raise CoordinatorUnavailableError("Coordinator Unavailable") from error
+        
+    def complete_task(self, task_id: str, result: dict):
+        try:
+            response = requests.post(f"{self.base_url}/tasks/{task_id}/complete",
+                json={"result": result})
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as error:
+            raise CoordinatorUnavailableError("Coordinator unavailable") from error
+        
+
+    def fail_task(self, task_id: str, error_message: str):
+        try:
+            response = requests.post(f"{self.base_url}/tasks/{task_id}/fail",
+                json={"error_message": error_message})
+            response.raise_for_status()
+            return response.json()
+        except requests.RequestException as error:
+            raise CoordinatorUnavailableError("Coordinator unavailable") from error
