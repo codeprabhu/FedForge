@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends  # type: ignore
 from app.models.worker import WorkerRegistrationRequest
-from app.api.dependencies import get_worker_registry
+from app.api.dependencies import get_worker_registry, get_task_registry
 from app.services.worker_registry import WorkerRegistry
+from app.services.task_registry import TaskRegistry
 from fastapi import HTTPException # type: ignore
 
 router  = APIRouter()
@@ -23,3 +24,10 @@ def heartbeat(worker_id:str,
     if worker is None:
         raise HTTPException(status_code = 404, detail = "Worker Not Found")
     return {"status":"heartbeat received"}
+
+@router.post("/workers/{worker_id}/next-task")
+def get_next_task(worker_id: str, task_registry : TaskRegistry = Depends(get_task_registry)):
+    task = task_registry.assign_next_task(worker_id)
+    if task is None:
+        return None
+    return task

@@ -1,6 +1,6 @@
 from app.db.models.task import Task
 from app.repositories.base import Repository
-
+from app.models.enums import TaskStatus
 
 class PostgresTaskRepository(Repository):
 
@@ -27,3 +27,8 @@ class PostgresTaskRepository(Repository):
             .all()
         )
         return tasks
+    
+    def get_oldest_created(self):
+        return (self.db.query(Task).filter(
+            Task.status == TaskStatus.CREATED
+        ).order_by(Task.created_at.asc()).first())

@@ -68,3 +68,13 @@ class TaskRegistry:
         task.error_message = error_message
         task.completed_at = datetime.now(UTC)
         return task
+    
+    def assign_next_task(self, worker_id: str):
+        task = self.repository.get_oldest_created()
+        if task is None:
+            return None
+        self._transition(task, TaskStatus.CREATED, TaskStatus.ASSIGNED)
+
+        task.worker_id = worker_id
+        task.assigned_at = datetime.now(UTC)
+        return task
