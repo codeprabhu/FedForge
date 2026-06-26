@@ -619,6 +619,131 @@ Success Criteria:
 
 Single worker trains successfully.
 
+# Project Timeline
+
+## Phase 0 - Infrastructure Foundation ✅
+
+Completed
+
+* Coordinator
+* PostgreSQL Persistence
+* Repository Pattern
+* Worker Registration
+* Worker Heartbeats
+* Worker Metrics
+* Docker Deployment
+
+---
+
+## Phase 1 - Distributed Execution ✅
+
+Completed
+
+* Task System
+* Task Assignment
+* Task Execution
+* Task Lifecycle
+* Worker Polling
+* Result Reporting
+
+---
+
+## Phase 2 - Training Architecture ✅
+
+Completed (Day 9)
+
+* TrainingConfig
+* TrainingResult
+* BaseDataset
+* DatasetMetadata
+* DatasetRegistry
+* ModelRegistry
+* DatasetStorage
+* TrainingTask
+* Architecture Validation
+
+---
+
+## Phase 3 - Real Training Pipeline ⏳
+
+Planned (Day 10)
+
+* HiggsDataset.download_if_missing()
+* HiggsDataset.load()
+* HiggsDataset.partition()
+* PyTorch Integration
+* TensorDataset
+* DataLoader
+* HiggsMLP
+* LocalTrainer Implementation
+
+Goal:
+
+Single Worker Training
+
+---
+
+## Phase 4 - Federated Learning ⏳
+
+Planned
+
+* Training Rounds
+* Global Model
+* Model Updates
+* FedAvg Aggregation
+* Coordinator Aggregation Service
+
+Goal:
+
+Multiple Workers
+↓
+Local Training
+↓
+FedAvg
+↓
+Global Model
+
+---
+
+## Phase 5 - Distributed Deployment ⏳
+
+Planned
+
+* Coordinator VM
+* AWS Worker
+* Oracle Worker
+* Remote Multi-Node Training
+
+Goal:
+
+Real Distributed Federated Learning Across Physical Machines
+
+---
+
+# Day 9 Status
+
+Infrastructure            ✅
+
+Distributed Execution     ✅
+
+Training Architecture     ✅
+
+Dataset Platform          ✅
+
+Real Dataset Loading      ⏳
+
+PyTorch Integration       ⏳
+
+FedAvg                    ⏳
+
+---
+
+## Summary
+
+Day 9 focused entirely on architecture stabilization and training platform design.
+
+A complete, extensible federated training architecture was implemented and validated through an end-to-end execution flow. Dataset abstractions, storage architecture, registries, training contracts, and orchestration layers were finalized. The system is now prepared for real dataset ingestion, PyTorch integration, and federated learning implementation in subsequent phases.
+
 ---
 
 # Day 10 — Federated Averaging

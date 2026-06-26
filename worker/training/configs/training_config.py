@@ -11,6 +11,8 @@ class TrainingConfig:
     learning_rate: float
     partition_id: int
 
+    total_partitions: int
+
     @classmethod
     def from_dict(cls, payload: dict):
         return cls(
@@ -19,5 +21,6 @@ class TrainingConfig:
             epochs=payload["epochs"],
             batch_size=payload["batch_size"],
             learning_rate=payload["learning_rate"],
-            partition_id=payload["partition_id"]
+            partition_id=payload["partition_id"],
+            total_partitions = payload["total_partitions"]
         )

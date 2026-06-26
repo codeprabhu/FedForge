@@ -3,7 +3,7 @@ from training.results.training_result import TrainingResult
 
 class LocalTrainer(BaseTrainer):
     def train(self, dataset, model, config):
-        dataset_info = dataset.get_dataloader(config.partition_id, config.batch_size)
+        dataset_info = dataset.get_dataloader(config.partition_id, config.total_partitions, config.batch_size)
         model_info = model.build()
 
         return TrainingResult(
