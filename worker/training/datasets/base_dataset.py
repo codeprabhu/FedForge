@@ -19,5 +19,5 @@ class BaseDataset(ABC):
         pass
 
     @abstractmethod
-    def downlaod_if_missing(self):
+    def download_if_missing(self):
         pass

@@ -43,5 +43,8 @@ services:
     environment:
       COORDINATOR_URL: http://coordinator:8000
 
+    volumes:
+      - ../../worker/worker_data:/app/worker_data
+
 volumes:
   postgres_data:

@@ -17,3 +17,5 @@ dist/
 *.db
 help
 timeline.md
+
+worker/worker_data/datasets

@@ -859,3 +859,137 @@ docker compose up
 ```
 
 produces a fully functioning distributed federated-learning platform.
+# Project Timeline
+
+## Phase 0 - Infrastructure Foundation ✅
+
+Completed
+
+- Coordinator
+- PostgreSQL Persistence
+- Repository Pattern
+- Worker Registration
+- Worker Heartbeats
+- Worker Metrics
+- Docker Deployment
+
+---
+
+## Phase 1 - Distributed Execution ✅
+
+Completed
+
+- Task System
+- Task Assignment
+- Task Execution
+- Task Lifecycle
+- Worker Polling
+- Result Reporting
+
+---
+
+## Phase 2 - Training Architecture ✅
+
+Completed
+
+- TrainingConfig
+- TrainingResult
+- BaseDataset
+- DatasetMetadata
+- DatasetRegistry
+- ModelRegistry
+- DatasetStorage
+- TrainingTask
+- Plugin Architecture
+
+---
+
+## Phase 3 - Real Training Pipeline ✅
+
+Completed
+
+- HiggsDataset
+- Dataset Download Pipeline
+- Dataset Loading
+- Dataset Partitioning
+- TensorDataset
+- DataLoader
+- PyTorch Integration
+- HiggsMLP
+- LocalTrainer
+- Real Gradient Descent
+- End-to-End Distributed Training
+
+Goal Achieved:
+
+Coordinator
+↓
+Worker
+↓
+Real Local Training
+↓
+Coordinator Receives Metrics
+
+---
+
+## Phase 4 - Federated Learning ⏳
+
+Next
+
+- Model Weight Serialization
+- Round Coordinator
+- Round Lifecycle
+- FedAvg Aggregation
+- Global Model Distribution
+- Multi-Round Training
+
+Goal:
+
+Multiple Workers
+↓
+Independent Local Training
+↓
+Weight Collection
+↓
+FedAvg
+↓
+Updated Global Model
+
+---
+
+## Phase 5 - Experiment Tracking ⏳
+
+- Experiments
+- Rounds
+- Historical Metrics
+- Accuracy History
+- Loss History
+- Training Analytics
+
+---
+
+## Phase 6 - Dashboard ⏳
+
+- Worker Dashboard
+- Training Dashboard
+- Experiment Dashboard
+- Metrics Visualization
+- Round Monitoring
+
+---
+
+## Phase 7 - Distributed Cloud Deployment ⏳
+
+- AWS Coordinator
+- Azure Worker
+- Oracle Worker
+- Multiple Physical Machines
+- Internet-scale Federated Learning
+
+Goal:
+
+Cloud Coordinator
+↓
+Distributed Workers
+↓
+Federated Learning
