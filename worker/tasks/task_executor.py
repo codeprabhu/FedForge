@@ -8,6 +8,10 @@ from training.models.higgs_mlp import HiggsMLP
 
 from training.trainers.local_trainer import LocalTrainer
 from training.tasks.training_task import TrainingTask
+
+from dto.training_result_dto import TrainingResultsDTO
+from dto.model_weights_dto import ModelWeightsDTO
+
 class TaskExecutor:
     def __init__(self):
         self.echo_task = EchoTask()
@@ -25,6 +29,14 @@ class TaskExecutor:
             return self.echo_task.execute(payload)
         
         if task_type == "TRAINING":
-            return self.training_task.execute(payload)
+            result = self.training_task.execute(payload)
+            return TrainingResultsDTO(
+                accuracy=result.accuracy,
+                loss=result.loss,
+                epochs=result.epochs,
+                num_samples=result.num_samples,
+                training_time_seconds=result.training_time_seconds,
+                model_weights=ModelWeightsDTO(
+                    parameters=result.model_weights.weights))
                 
         raise ValueError(f"Uknown Task type: {task_type}")

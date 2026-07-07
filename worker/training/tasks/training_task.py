@@ -14,5 +14,4 @@ class TrainingTask:
 
         dataset = dataset_class()
         model = model_class()
-        result = self.trainer.train(dataset, model, config)
-        return result.to_dict()
+        return self.trainer.train(dataset, model, config)

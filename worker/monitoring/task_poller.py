@@ -24,10 +24,8 @@ class TaskPoller(BackgroundService):
                 self.worker_client.start_task(task_id)
                 result = self.task_executor.execute(
                     task["task_type"], task["payload"])
-                result = self.task_executor.execute(
-                    task["task_type"], task["payload"])
                 self.worker_client.complete_task(
-                    task_id, result)
+                    task_id,result.to_dict())
 
             except CoordinatorUnavailableError:
                     pass

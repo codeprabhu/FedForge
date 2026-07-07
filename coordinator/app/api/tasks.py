@@ -5,6 +5,7 @@ from fastapi import HTTPException # type: ignore
 from app.models.task import CreateTaskRequest, CompleteTaskRequest, FailTaskRequest
 from app.api.dependencies import get_task_registry
 from app.services.task_registry import TaskRegistry
+from app.dto.training_result_dto import TrainingResultDTO
 
 router = APIRouter()
 
@@ -28,7 +29,8 @@ def get_task(task_id: str, task_registry: TaskRegistry = Depends(get_task_regist
 @router.post("/tasks/{task_id}/complete")
 def complete_task(task_id: str, payload: CompleteTaskRequest,
                   task_registry: TaskRegistry = Depends(get_task_registry)):
-    task = task_registry.complete_task(task_id, payload.result)
+    result_dto = TrainingResultDTO.from_dict(payload.result)
+    task = task_registry.complete_task(task_id, result_dto.to_dict())
     return task
 
 @router.post("/tasks/{task_id}/fail")
@@ -40,10 +42,4 @@ def fail_task(task_id: str, payload: FailTaskRequest,
 @router.post("/tasks/{task_id}/start")
 def start_task(task_id: str, task_registry: TaskRegistry = Depends(get_task_registry)):
     task = task_registry.start_task(task_id)
-    return task
-
-@router.post("/tasks{task_id}/complete")
-def complete_task(task_id: str, payload: CompleteTaskRequest, 
-                  task_registry: TaskRegistry = Depends(get_task_registry)):
-    task = task_registry.complete_task(task_id, payload.result)
     return task
