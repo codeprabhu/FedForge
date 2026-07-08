@@ -13,7 +13,7 @@ from app.services.task_registry import TaskRegistry
 
 from app.repositories.postgres_metric_repository import PostgresWorkerMetricsRepository
 from app.services.metrics_registry import MetricsRegistry
-
+from app.services.dashboard_service import DashboardService
 
 def get_worker_repository(
         db = Depends(get_db)
@@ -46,3 +46,12 @@ def get_worker_metrics_repository(db = Depends(get_db)):
 
 def get_worker_metrics_registry(repository = Depends(get_worker_metrics_repository)):
     return MetricsRegistry(repository)
+
+def get_dashboard_service(
+    worker_repository = Depends(get_worker_repository),
+    task_repository = Depends(get_task_repository)
+):
+    return DashboardService(
+        worker_repository,
+        task_repository)
+

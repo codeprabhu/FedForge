@@ -1,7 +1,7 @@
 from collections import OrderedDict
 import torch # type: ignore
-from base_aggregation_strategy import BaseAggregationStrategy
-from dto.model_weights_dto import ModelWeightsDTO
+from app.aggregation.strategies.base_aggregation_strategy import BaseAggregationStrategy
+from app.dto.model_weights_dto import ModelWeightsDTO
 
 class FedAvgStrategy(BaseAggregationStrategy):
     def aggregate(self, models: list[ModelWeightsDTO])-> ModelWeightsDTO:

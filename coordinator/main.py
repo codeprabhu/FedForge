@@ -3,12 +3,16 @@ from fastapi import FastAPI # type: ignore
 from app.api.workers import router as worker_router
 from app.api.tasks import router as task_router
 from app.api.metrics import router as metrics_router
+from app.api.dashboard import router as dashboard_router
+from app.api.log import router as log_router
 
 from contextlib import asynccontextmanager
 import asyncio
 
 from app.services.worker_monitor import WorkerMonitor
 from app.db.create_tables import create_tables
+
+from fastapi.middleware.cors import CORSMiddleware # type:ignore
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
@@ -29,10 +33,19 @@ app = FastAPI(
     version = "0.1.0",
     lifespan = lifespan
 )
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(worker_router)
 app.include_router(task_router)
 app.include_router(metrics_router)
+app.include_router(dashboard_router)
+app.include_router(log_router)
 
 @app.get("/")
 async def root():
