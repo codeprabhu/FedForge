@@ -19,3 +19,8 @@ class GlobalModelManager:
             version = version, weights = weights)
         
         return self.repository.save(model)
+    
+    def get_version(self, version: int):
+        return self.repository.get_version(version)
+    
+    

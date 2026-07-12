@@ -29,3 +29,6 @@ class TrainingRoundRepository:
         self.db.refresh(round)
 
         return round
+    
+    def get_latest(self):
+        return self.db.query(TrainingRound).order_by(TrainingRound.round_number.desc()).first()

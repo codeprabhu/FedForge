@@ -7,11 +7,13 @@ from training.trainers.base_trainer import BaseTrainer
 from serialization.model_weights import ModelWeights
 
 class LocalTrainer(BaseTrainer):
-    def train(self, dataset, model, config):
+    def train(self, dataset, model, config, pretrained_weights = None):
         dataloader, num_samples = dataset.get_dataloader(
             config.partition_id,config.total_partitions, config.batch_size)
         
         model = model.build()
+        if pretrained_weights is not None:
+            model.load_state_dict(ModelWeights.from_dict(pretrained_weights).to_state_dict())
         criterion = nn.BCEWithLogitsLoss()
 
         optimizer = torch.optim.Adam(

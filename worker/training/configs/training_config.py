@@ -5,6 +5,7 @@ class TrainingConfig:
     dataset: str
     model: str
 
+    model_version : int| None
     epochs: int
     batch_size: int
 
@@ -18,6 +19,7 @@ class TrainingConfig:
         return cls(
             dataset=payload["dataset"],
             model=payload["model"],
+            model_version = payload.get("model_version"),
             epochs=payload["epochs"],
             batch_size=payload["batch_size"],
             learning_rate=payload["learning_rate"],

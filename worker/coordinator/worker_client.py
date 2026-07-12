@@ -17,6 +17,7 @@ class WorkerClient:
             raise CoordinatorUnavailableError(
                 "Coordinator Unavailable"
             ) from error
+        
     def heartbeat(self, worker_id: str):
         try:
             response = requests.post(
@@ -33,7 +34,6 @@ class WorkerClient:
                 "Coordinator unavailable"
             ) from error
         
-
     def send_metrics(self, worker_id: str, metrics: dict):
         try:
             response = requests.post(
@@ -43,7 +43,6 @@ class WorkerClient:
         except requests.RequestException as error:
             raise CoordinatorUnavailableError("Coordinator Unavailable") from error
         
-
     def get_next_task(self, worker_id: str):
         try:
             response = requests.post(f"{self.base_url}/workers/{worker_id}/next-task")
@@ -69,7 +68,6 @@ class WorkerClient:
         except requests.RequestException as error:
             raise CoordinatorUnavailableError("Coordinator unavailable") from error
         
-
     def fail_task(self, task_id: str, error_message: str):
         try:
             response = requests.post(f"{self.base_url}/tasks/{task_id}/fail",
@@ -78,3 +76,25 @@ class WorkerClient:
             return response.json()
         except requests.RequestException as error:
             raise CoordinatorUnavailableError("Coordinator unavailable") from error
+        
+    def get_latest_model(self):
+        try:
+            response = requests.get(
+                f"{self.base_url}/global-model/latest")
+            response.raise_for_status()
+            return response.json()
+        
+        except requests.RequestException as error:
+            raise CoordinatorUnavailableError(
+                "Coordinator Unavailable mbad bro"
+            ) from error
+        
+    def get_model(self, version: int):
+        try: 
+            response = requests.get(
+                f"{self.base_url}/global-model/{version}")
+            response.raise_for_status()
+            return response.json()
+        
+        except requests.RequestException as error:
+            raise CoordinatorUnavailableError("Coordinator aint here bro") from error

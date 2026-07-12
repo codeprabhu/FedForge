@@ -12,6 +12,9 @@ from training.tasks.training_task import TrainingTask
 from dto.training_result_dto import TrainingResultsDTO
 from dto.model_weights_dto import ModelWeightsDTO
 
+from core.config import COORDINATOR_URL
+from coordinator.worker_client import WorkerClient
+
 class TaskExecutor:
     def __init__(self):
         self.echo_task = EchoTask()
@@ -20,9 +23,9 @@ class TaskExecutor:
 
         model_registry.register("higgs_mlp", HiggsMLP)
         dataset_registry.register("higgs", HiggsDataset)
-
+        worker_client = WorkerClient(COORDINATOR_URL)
         trainer = LocalTrainer()
-        self.training_task = TrainingTask(trainer, dataset_registry, model_registry)
+        self.training_task = TrainingTask(trainer, dataset_registry, model_registry, worker_client)
 
     def execute(self, task_type: str, payload: dict):
         if task_type == 'ECHO':

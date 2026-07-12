@@ -10,7 +10,10 @@ class GlobalModelRepository:
         return model
 
     def get_latest(self):
-       return (
-                self.db.query(GlobalModel)
+       return (self.db.query(GlobalModel)
                 .order_by(GlobalModel.version.desc())
                 .first())
+
+    def get_version(self, version: int):
+        return(self.db.query(GlobalModel).filter(GlobalModel.version == version).first())
+    

@@ -15,12 +15,15 @@ from app.repositories.postgres_metric_repository import PostgresWorkerMetricsRep
 from app.services.metrics_registry import MetricsRegistry
 
 from app.repositories.training_round_repository import TrainingRoundRepository
-from app.repositories.global_model_repository import GlobalModelRepository
-from app.services.global_model_manager import GlobalModelManager
-from app.services.aggregation_service import AggregationService
-from app.aggregation.strategies.fedavg_strategy import FedAvgStrategy
 from app.services.round_manager import RoundManager
 
+from app.repositories.global_model_repository import GlobalModelRepository
+from app.services.global_model_manager import GlobalModelManager
+
+from app.services.aggregation_service import AggregationService
+from app.aggregation.strategies.fedavg_strategy import FedAvgStrategy
+
+from app.services.round_scheduler import RoundScheduler
 from app.services.dashboard_service import DashboardService
 
 def get_worker_repository(
@@ -83,3 +86,7 @@ def get_round_manager(repository = Depends(get_training_round_repository),
                       task_registry = Depends(get_task_registry), 
                       aggregation_service = Depends(get_aggregation_service)):
     return RoundManager(repository, task_registry, aggregation_service)
+
+def get_round_scheduler(round_manager = Depends(get_round_manager),
+                        worker_registry = Depends(get_worker_registry)):
+    return RoundScheduler(round_manager, worker_registry)
