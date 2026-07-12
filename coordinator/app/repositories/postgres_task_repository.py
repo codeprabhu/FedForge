@@ -32,3 +32,14 @@ class PostgresTaskRepository(Repository):
         return (self.db.query(Task).filter(
             Task.status == TaskStatus.CREATED
         ).order_by(Task.created_at.asc()).first())
+    
+    def update(self, task):
+        self.db.commit()
+        self.db.refresh(task)
+        return task
+    
+    def get_by_round(self,round_id):
+            return (
+                self.db.query(Task)
+        .       filter(Task.round_id == round_id)
+                .all())

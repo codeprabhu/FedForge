@@ -63,3 +63,5 @@ class Task(Base):
         DateTime(timezone=True),
         nullable=True
     )
+
+    round_id = Column(String, nullable = True)

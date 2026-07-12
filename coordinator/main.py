@@ -5,6 +5,7 @@ from app.api.tasks import router as task_router
 from app.api.metrics import router as metrics_router
 from app.api.dashboard import router as dashboard_router
 from app.api.log import router as log_router
+from app.api.rounds import router as round_router
 
 from contextlib import asynccontextmanager
 import asyncio
@@ -46,6 +47,7 @@ app.include_router(task_router)
 app.include_router(metrics_router)
 app.include_router(dashboard_router)
 app.include_router(log_router)
+app.include_router(round_router)
 
 @app.get("/")
 async def root():

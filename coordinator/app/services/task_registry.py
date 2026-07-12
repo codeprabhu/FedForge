@@ -19,9 +19,10 @@ class TaskRegistry:
             raise ValueError(f"Cannot transition task from {task.status} to {new_status}")
         task.status = new_status
 
-    def create_task(self, task_type:TaskType, payload:dict):
+    def create_task(self, task_type:TaskType, payload:dict, round_id: str | None = None):
         task = Task(
             task_id=str(uuid4()),
+            round_id = round_id,
             task_type=task_type,
             status=TaskStatus.CREATED,
             worker_id=None,
@@ -42,6 +43,7 @@ class TaskRegistry:
 
         task.worker_id = worker_id
         task.assigned_at = datetime.now(UTC)
+        self.repository.update(task)
         return task
     
     def start_task(self, task_id:str):
@@ -49,6 +51,7 @@ class TaskRegistry:
         self._transition(task, TaskStatus.ASSIGNED, TaskStatus.RUNNING)
         
         task.started_at = datetime.now(UTC)
+        self.repository.update(task)
         return task
     
     def complete_task(self, task_id: str, result: dict):
@@ -57,6 +60,7 @@ class TaskRegistry:
 
         task.result = result
         task.completed_at = datetime.now(UTC)
+        self.repository.update(task)
         return task
     
     def fail_task(self, task_id: str, error_message: str):
@@ -67,6 +71,7 @@ class TaskRegistry:
         task.status = TaskStatus.FAILED
         task.error_message = error_message
         task.completed_at = datetime.now(UTC)
+        self.repository.update(task)
         return task
     
     def assign_next_task(self, worker_id: str):
@@ -77,4 +82,6 @@ class TaskRegistry:
 
         task.worker_id = worker_id
         task.assigned_at = datetime.now(UTC)
+        self.repository.update(task)
         return task
+    
