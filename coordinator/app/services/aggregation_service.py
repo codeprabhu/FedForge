@@ -6,4 +6,5 @@ class AggregationService:
     def aggregate(self, model_name, results):
         weights = [result.model_weights for result in results]
         aggregated = self.strategy.aggregate(weights)
-        self.global_model_manager.save_model(model_name, aggregated.to_dict())
+        model = self.global_model_manager.save_model(model_name,aggregated.to_dict())
+        return model

@@ -1,6 +1,7 @@
 import time
 import torch # type: ignore
 import torch.nn as nn # type: ignore
+from typing import cast
 
 from training.results.training_result import TrainingResult
 from training.trainers.base_trainer import BaseTrainer
@@ -13,7 +14,7 @@ class LocalTrainer(BaseTrainer):
         
         model = model.build()
         if pretrained_weights is not None:
-            model.load_state_dict(ModelWeights.from_dict(pretrained_weights).to_state_dict())
+            model.load_state_dict(ModelWeights(cast(dict[str,list],pretrained_weights)).to_state_dict())
         criterion = nn.BCEWithLogitsLoss()
 
         optimizer = torch.optim.Adam(

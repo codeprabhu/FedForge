@@ -75,13 +75,4 @@ class TaskRegistry:
         return task
     
     def assign_next_task(self, worker_id: str):
-        task = self.repository.get_oldest_created()
-        if task is None:
-            return None
-        self._transition(task, TaskStatus.CREATED, TaskStatus.ASSIGNED)
-
-        task.worker_id = worker_id
-        task.assigned_at = datetime.now(UTC)
-        self.repository.update(task)
-        return task
-    
+        return self.repository.claim_oldest_created(worker_id)

@@ -16,5 +16,5 @@ class TrainingTask:
         model = model_class()
         if config.model_version is not None:
             global_model = (self.worker_client.get_model(config.model_version))
-            pretrained_weights = (global_model["weights"])
+            pretrained_weights = (global_model["weights"]["parameters"])
         return self.trainer.train(dataset, model, config, pretrained_weights)

@@ -12,13 +12,11 @@ class GlobalModelManager:
         latest = self.repository.get_latest()
         version = 1
         if latest:
-            version = latest.version +1
-
-        model = GlobalModel(
-            model_name = model_name,
-            version = version, weights = weights)
-        
-        return self.repository.save(model)
+            version = latest.version + 1
+        model = GlobalModel(model_name=model_name,
+            version=version,weights=weights)
+        saved = self.repository.save(model)
+        return saved
     
     def get_version(self, version: int):
         return self.repository.get_version(version)
