@@ -38,6 +38,13 @@ class RoundScheduler:
                     round_manager = (RoundManager(round_repository,
                             task_registry,aggregation_service))
 
+                    requeued_tasks = task_registry.requeue_tasks_for_offline_workers(
+                        worker_repository.get_all()
+                    )
+                    if requeued_tasks:
+                        print(
+                            f"[ROUND SCHEDULER] Requeued {len(requeued_tasks)} task(s)"
+                        )
                     await self.tick(round_manager, worker_repository)
 
             except Exception as e:
@@ -51,6 +58,13 @@ class RoundScheduler:
                 if r.status == "RUNNING"),None)
 
         if active_round is None:
+            latest_round = round_manager.repository.get_latest()
+            if latest_round is not None and latest_round.status == "FAILED":
+                print(
+                    f"[ROUND SCHEDULER] Waiting after failed round "
+                    f"{latest_round.round_number}"
+                )
+                return
             workers = [worker for worker in worker_repository.get_all()
                 if worker.status == "ONLINE"]
             if len(workers) == 0:
@@ -67,8 +81,19 @@ class RoundScheduler:
             )
             return
 
-        if round_manager.is_round_complete(active_round.round_id):
+        state = round_manager.inspect_round(active_round.round_id)
+        if state["all_tasks_completed"] and not state["coverage_valid"]:
+            print(
+                f"[ROUND SCHEDULER] Failing round "
+                f"{active_round.round_number}: {state['coverage_message']}"
+            )
+            active_round.status = "FAILED"
+            round_manager.repository.update(active_round)
+        elif round_manager.is_round_complete(active_round.round_id):
             print(f"[ROUND SCHEDULER] "
                 f"Aggregating round "f"{active_round.round_number}")
             round_manager.aggregate_round(active_round.round_id)
+        elif round_manager.is_round_failed(active_round.round_id):
+            active_round.status = "FAILED"
+            round_manager.repository.update(active_round)
 

@@ -3,5 +3,5 @@ from app.dto.model_weights_dto import ModelWeightsDTO
 
 class BaseAggregationStrategy(ABC):
     @abstractmethod
-    def aggregate(self, models: list[ModelWeightsDTO]) -> ModelWeightsDTO:
+    def aggregate(self, models: list[ModelWeightsDTO], sample_counts: list[int] | None = None) -> ModelWeightsDTO:
         pass

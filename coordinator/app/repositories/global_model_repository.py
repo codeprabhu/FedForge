@@ -9,11 +9,12 @@ class GlobalModelRepository:
         self.db.refresh(model)
         return model
 
-    def get_latest(self):
-       return (self.db.query(GlobalModel)
-                .order_by(GlobalModel.version.desc())
-                .first())
+    def get_latest(self, model_name=None):
+       query = self.db.query(GlobalModel)
+       if model_name is not None:
+           query = query.filter(GlobalModel.model_name == model_name)
+       return query.order_by(GlobalModel.version.desc()).first()
 
     def get_version(self, version: int):
         return(self.db.query(GlobalModel).filter(GlobalModel.version == version).first())
-    
+

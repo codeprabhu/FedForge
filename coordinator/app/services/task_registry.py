@@ -76,3 +76,28 @@ class TaskRegistry:
     
     def assign_next_task(self, worker_id: str):
         return self.repository.claim_oldest_created(worker_id)
+
+    def requeue_tasks_for_offline_workers(self, workers):
+        """Return work owned by offline workers to the shared task queue.
+
+        Training can legitimately take a long time, so elapsed time alone is
+        not evidence that a task failed. A task is recoverable only when its
+        assigned worker is known to be offline.
+        """
+        online_worker_ids = {
+            worker.worker_id for worker in workers
+            if getattr(worker.status, "value", worker.status) == "ONLINE"
+        }
+        requeued_tasks = []
+        for task in self.repository.get_all():
+            if task.status not in (TaskStatus.ASSIGNED, TaskStatus.RUNNING):
+                continue
+            if task.worker_id is not None and task.worker_id not in online_worker_ids:
+                task.status = TaskStatus.CREATED
+                task.worker_id = None
+                task.assigned_at = None
+                task.started_at = None
+                task.error_message = None
+                self.repository.update(task)
+                requeued_tasks.append(task)
+        return requeued_tasks

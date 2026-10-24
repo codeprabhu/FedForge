@@ -19,3 +19,12 @@ class DatasetStorage:
     
     def metadata_file(self):
         return self._paths.metadata_file()
+
+    def processed_features_file(self):
+        return self._paths.processed_features_file()
+
+    def processed_labels_file(self):
+        return self._paths.processed_labels_file()
+
+    def processed_manifest_file(self):
+        return self._paths.processed_manifest_file()

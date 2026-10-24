@@ -16,3 +16,12 @@ class DatasetsPaths:
     
     def metadata_file(self) -> Path:
         return self.dataset_dir()/"metadata.json"
+
+    def processed_features_file(self) -> Path:
+        return self.processed_dir() / "features.npy"
+
+    def processed_labels_file(self) -> Path:
+        return self.processed_dir() / "labels.npy"
+
+    def processed_manifest_file(self) -> Path:
+        return self.processed_dir() / "manifest.json"

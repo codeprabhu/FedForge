@@ -15,11 +15,12 @@ from monitoring.metrics_reporter import MetricsReporter
 from core.config import METRICS_INTERVAL_SECONDS
 
 from monitoring.task_poller import TaskPoller
-from tasks.task_executor import TaskExecutor
 from core.config import TASK_POLL_INTERVAL_SECONDS
+from tasks.task_executor import TaskExecutor
+from core.config import WORKER_IDENTITY_PATH
 class WorkerRuntime:
     def run(self):
-        store = IdentityStore()
+        store = IdentityStore(WORKER_IDENTITY_PATH)
         identity_manager = (IdentityManager(store))
 
         worker_client = WorkerClient(COORDINATOR_URL)

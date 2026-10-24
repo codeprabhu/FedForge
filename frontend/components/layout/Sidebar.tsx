@@ -6,7 +6,7 @@ import {
     Cpu,
     ClipboardList,
     BarChart3,
-    Settings
+    GitBranch
 } from "lucide-react";
 
 export default function Sidebar() {
@@ -50,7 +50,7 @@ export default function Sidebar() {
 
                 <Link
                     href="/workers"
-                    className="flex gap-3 stone-100
+                    className="flex gap-3 text-stone-100
                         text-xs
                         uppercase
                         tracking-[0.25em]
@@ -61,7 +61,7 @@ export default function Sidebar() {
 
                 <Link
                     href="/tasks"
-                    className="flex gap-3 stone-100
+                    className="flex gap-3 text-stone-100
                         text-xs
                         uppercase
                         tracking-[0.25em]"
@@ -71,25 +71,25 @@ export default function Sidebar() {
                 </Link>
 
                 <Link
-                    href="#"
+                    href="/rounds"
                     className="flex gap-3 stone-100
                         text-xs
                         uppercase
                         tracking-[0.25em]"
                 >
                     <BarChart3 size={18}/>
-                    Analytics
+                    Rounds
                 </Link>
 
                 <Link
-                    href="#"
-                    className="flex gap-3 stone-100
+                    href="/tasks"
+                    className="flex gap-3 text-stone-100
                         text-xs
                         uppercase
                         tracking-[0.25em]"
                 >
-                    <Settings size={18}/>
-                    Settings
+                    <GitBranch size={18}/>
+                    Operations
                 </Link>
             </nav>
 

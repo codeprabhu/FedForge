@@ -31,7 +31,7 @@ def get_rounds(
     manager: RoundManager =
         Depends(get_round_manager)
 ):
-    return manager.repository.get_all_rounds()
+    return manager.get_all_rounds()
 
 @router.get("/rounds/{round_id}")
 def get_round(

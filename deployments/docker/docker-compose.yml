@@ -16,6 +16,12 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U fedforge -d fedforge"]
+      interval: 2s
+      timeout: 3s
+      retries: 15
+
   coordinator:
     build:
       context: ../../coordinator
@@ -24,7 +30,8 @@ services:
     container_name: fedforge-coordinator
 
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
 
     environment:
       DATABASE_URL: postgresql://fedforge:fedforge@postgres:5432/fedforge
@@ -32,19 +39,24 @@ services:
     ports:
       - "8000:8000"
 
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/', timeout=2)"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
   worker:
     build:
       context: ../../worker
       dockerfile: Dockerfile
 
     depends_on:
-      - coordinator
+      coordinator:
+        condition: service_healthy
 
     environment:
       COORDINATOR_URL: http://coordinator:8000
-
-    volumes:
-      - ../../worker/worker_data:/app/worker_data
+      HIGGS_MAX_ROWS: "0"
 
 volumes:
   postgres_data:

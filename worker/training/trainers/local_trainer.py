@@ -36,7 +36,7 @@ class LocalTrainer(BaseTrainer):
 
                 loss.backward()
                 optimizer.step()
-                running_loss += loss.item()
+                running_loss += loss.item() * labels.size(0)
 
                 predictions = torch.sigmoid(outputs)
                 predictions = (predictions >=0.5).float()
@@ -46,7 +46,7 @@ class LocalTrainer(BaseTrainer):
             
         training_time = time.time() - start_time
         accuracy = correct/total if total > 0 else 0.0
-        average_loss = (running_loss/len(dataloader)) if len(dataloader) > 0 else 0.0
+        average_loss = (running_loss / total) if total > 0 else 0.0
         model_weights = ModelWeights.from_state_dict(model.state_dict())
 
         return TrainingResult(

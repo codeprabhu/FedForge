@@ -16,6 +16,7 @@ from app.services.round_scheduler import RoundScheduler
 from app.db.create_tables import create_tables
 
 from fastapi.middleware.cors import CORSMiddleware # type:ignore
+from app.core.config import FRONTEND_ORIGIN
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
@@ -28,6 +29,8 @@ async def lifespan(app:FastAPI):
     monitor_task = asyncio.create_task(monitor.monitor_loop())
     yield
 
+    scheduler.stop()
+    scheduler_task.cancel()
     monitor.stop()
     monitor_task.cancel()
 
@@ -39,7 +42,7 @@ app = FastAPI(
 )
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=[FRONTEND_ORIGIN],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -1,4 +1,4 @@
-from app.models.enums import TaskStatus
+from app.models.enums import TaskStatus, WorkerStatus
 
 class DashboardService:
     def __init__(self, worker_repository, task_repository):
@@ -9,7 +9,7 @@ class DashboardService:
         workers = self.worker_repository.get_all()
         tasks = self.task_repository.get_all()
 
-        workers_online = len(workers)
+        workers_online = sum(worker.status == WorkerStatus.ONLINE for worker in workers)
 
         running_tasks = len([
             task for task in tasks

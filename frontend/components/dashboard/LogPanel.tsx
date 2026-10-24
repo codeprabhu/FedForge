@@ -2,9 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { api } from "@/lib/api";
+import { WorkerEvent } from "@/lib/types";
 
 export default function LogPanel() {
-    const [logs, setLogs] = useState<any[]>([]);
+    const [logs, setLogs] = useState<WorkerEvent[]>([]);
 
     useEffect(() => {
         const fetchLogs = async () => {

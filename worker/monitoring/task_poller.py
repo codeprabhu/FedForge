@@ -14,6 +14,7 @@ class TaskPoller(BackgroundService):
 
     def run(self, worker_id):
         while self.running:
+            task = None
             try:
                 task = self.worker_client.get_next_task(worker_id)
                 if task is None:
@@ -28,7 +29,7 @@ class TaskPoller(BackgroundService):
                     task_id,result.to_dict())
 
             except CoordinatorUnavailableError:
-                    pass
+                time.sleep(self.interval_seconds)
             except Exception as error:
                 try:
                     if task is not None:
